@@ -4,15 +4,17 @@ import com.sparta.msa_exam.product.dto.ProductResponse;
 import com.sparta.msa_exam.product.entity.ProductEntity;
 import com.sparta.msa_exam.product.repository.ProductRepository;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class ProductService {
 
     private final ProductRepository productRepository;
@@ -26,12 +28,19 @@ public class ProductService {
         }
     }
     public ResponseEntity<List<ProductResponse>> getAllOrders() {
-        Optional<List<ProductResponse>> optionalOrders = productRepository.getAllOrders();
-        if (optionalOrders.isEmpty() || optionalOrders.get().isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }else {
-            return new ResponseEntity<>(optionalOrders.get(), HttpStatus.OK);
+        List<ProductEntity> productEntities = productRepository.findAll();
+        if (productEntities.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } else {
+            List<ProductResponse> productResponses = productEntities.stream()
+                    .map(this::convertToProductResponse) // 변환 메서드 예시
+                    .collect(Collectors.toList());
+            return new ResponseEntity<>(productResponses, HttpStatus.OK);
         }
+    }
+
+    private ProductResponse convertToProductResponse(ProductEntity productEntity) {
+        return new ProductResponse(productEntity.getProductId(), productEntity.getName(), productEntity.getSupplyPrice());
     }
 
 

@@ -10,13 +10,15 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Entity
 @Table(name = "order_mapping_product")
-public class OrderMappingProductEntity {
+public class OrderMappingProductEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id")
     private OrderEntity orderEntity;
+
     private Long productId;
 }
