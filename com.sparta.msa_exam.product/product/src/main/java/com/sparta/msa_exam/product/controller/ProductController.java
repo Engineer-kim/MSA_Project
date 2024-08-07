@@ -26,4 +26,11 @@ public class ProductController {
     public ResponseEntity<List<ProductResponse>> getAllOrders() {
         return productService.getAllOrders();
     }
+
+
+    @GetMapping("/getProductId")
+    public ResponseEntity<List<Long>> fetchAllProductId(){
+        return productService.fetchAllProductId();
+    }
+
 }

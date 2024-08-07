@@ -2,7 +2,6 @@ package com.sparta.msa_exam.product.service;
 
 import com.sparta.msa_exam.product.dto.ProductResponse;
 import com.sparta.msa_exam.product.entity.ProductEntity;
-import com.sparta.msa_exam.product.feignClient.ProductServiceClient;
 import com.sparta.msa_exam.product.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
@@ -19,7 +18,6 @@ import java.util.stream.Collectors;
 public class ProductService {
 
     private final ProductRepository productRepository;
-    private final ProductServiceClient productServiceClient;
     @CacheEvict(cacheNames = "productSaveCache", allEntries = true)
     public ResponseEntity<String> save(ProductEntity product) {
         if (product != null) {
@@ -46,4 +44,18 @@ public class ProductService {
         return new ProductResponse(productEntity.getProductId(), productEntity.getName(), productEntity.getSupplyPrice());
     }
 
+    public ResponseEntity<List<Long>> fetchAllProductId() {
+        List<ProductEntity> productEntities = productRepository.findAll();
+        if (productEntities.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+        List<ProductResponse> productResponses = productEntities.stream()
+                .map(this::convertToProductResponse)
+                .toList();
+        List<Long> productIds = productResponses.stream()
+                .map(ProductResponse::getProductId)
+                .collect(Collectors.toList());
+
+        return new ResponseEntity<>(productIds, HttpStatus.OK);
+    }
 }
