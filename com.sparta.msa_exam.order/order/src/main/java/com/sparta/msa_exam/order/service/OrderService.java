@@ -52,9 +52,9 @@ public class OrderService {
             // 비교후 맞으면 저장(== 오더 테이블에 정보 저장) 아니면 저장안되게 튕구기
             ResponseEntity<List<Long>> response = orderServiceClient.fetchAllProductId();
             if (response.getStatusCode() == HttpStatus.OK) {
-                List<Long> validProductIds = response.getBody();
-                if (validProductIds != null) {
-                    boolean productIdExists = validProductIds.stream()
+                List<Long> prodouctHasIdList = response.getBody();
+                if (prodouctHasIdList != null) {
+                    boolean productIdExists = prodouctHasIdList.stream()
                             .anyMatch(validProductId -> validProductId.equals(productId));
                     if (productIdExists) {
                         OrderMappingProductEntity product = new OrderMappingProductEntity();
@@ -69,13 +69,13 @@ public class OrderService {
                         return new ResponseEntity<>("Product ID 가 상품목록테이블에 없습니다", HttpStatus.BAD_REQUEST);
                     }
                 } else {
-                    return new ResponseEntity<>("상품 정보를 가져오는 데 실패했습니다", HttpStatus.INTERNAL_SERVER_ERROR);
+                    return new ResponseEntity<>("상품 정보를 가져오는 데 실패했습니다(혹은 없습니다)", HttpStatus.INTERNAL_SERVER_ERROR);
                 }
             } else {
                 return new ResponseEntity<>("FeignClient 로직 오류", HttpStatus.INTERNAL_SERVER_ERROR);
             }
         }
-        return new ResponseEntity<>("해당 OrderID 로 찿은 결과가 없습니다(OrderID 테이블에서 재확인 요망)", HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>("해당 OrderID 로 찿은 결과가 없습니다(OrderID 테이블에서 데이터 있는지 체크 요망)", HttpStatus.BAD_REQUEST);
     }
 
     /**
