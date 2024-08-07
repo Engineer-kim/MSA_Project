@@ -2,19 +2,16 @@ package com.sparta.msa_exam.product.service;
 
 import com.sparta.msa_exam.product.dto.ProductResponse;
 import com.sparta.msa_exam.product.entity.ProductEntity;
-import com.sparta.msa_exam.product.feingClient.ProductServiceClient;
+import com.sparta.msa_exam.product.feignClient.ProductServiceClient;
 import com.sparta.msa_exam.product.repository.ProductRepository;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,13 +24,6 @@ public class ProductService {
     public ResponseEntity<String> save(ProductEntity product) {
         if (product != null) {
              productRepository.save(product);
-            //FeignClient 로직에서 오류
-//            ResponseEntity<ProductEntity> externalResponse = productServiceClient.createProduct(savedProduct);
-//            if (externalResponse.getStatusCode().is2xxSuccessful()) {
-//                return new ResponseEntity<>("상품 추가 성공", HttpStatus.CREATED);
-//            } else {
-//                return new ResponseEntity<>("상품 추가로직중 페인클라이언트 로직 실패", HttpStatus.INTERNAL_SERVER_ERROR);
-//            }
             return new ResponseEntity<>("상품 추가 성공", HttpStatus.CREATED);
         } else {
             return new ResponseEntity<>("상품을 추가할 수 없습니다.", HttpStatus.BAD_REQUEST);
@@ -47,7 +37,7 @@ public class ProductService {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } else {
             List<ProductResponse> productResponses = productEntities.stream()
-                    .map(this::convertToProductResponse) // 변환 메서드 예시
+                    .map(this::convertToProductResponse)
                     .collect(Collectors.toList());
             return new ResponseEntity<>(productResponses, HttpStatus.OK);
         }
@@ -55,6 +45,5 @@ public class ProductService {
     private ProductResponse convertToProductResponse(ProductEntity productEntity) {
         return new ProductResponse(productEntity.getProductId(), productEntity.getName(), productEntity.getSupplyPrice());
     }
-
 
 }
