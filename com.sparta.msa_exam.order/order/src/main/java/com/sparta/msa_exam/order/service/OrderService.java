@@ -29,7 +29,7 @@ public class OrderService {
                 }
             }
             OrderEntity savedOrder = orderRepository.save(order);
-            return new ResponseEntity<>(savedOrder, HttpStatus.CREATED);
+            return new ResponseEntity<>(HttpStatus.CREATED);
         } else {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }

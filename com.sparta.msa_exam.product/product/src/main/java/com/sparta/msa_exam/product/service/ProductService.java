@@ -2,12 +2,16 @@ package com.sparta.msa_exam.product.service;
 
 import com.sparta.msa_exam.product.dto.ProductResponse;
 import com.sparta.msa_exam.product.entity.ProductEntity;
+import com.sparta.msa_exam.product.feingClient.ProductServiceClient;
 import com.sparta.msa_exam.product.repository.ProductRepository;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,15 +22,25 @@ import java.util.stream.Collectors;
 public class ProductService {
 
     private final ProductRepository productRepository;
-
-    public ResponseEntity<?> save(ProductEntity product) {
+    private final ProductServiceClient productServiceClient;
+    @CacheEvict(cacheNames = "productSaveCache", allEntries = true)
+    public ResponseEntity<String> save(ProductEntity product) {
         if (product != null) {
-            ProductEntity savedProduct = productRepository.save(product);
-            return new ResponseEntity<>(savedProduct, HttpStatus.CREATED);
+             productRepository.save(product);
+            //FeignClient 로직에서 오류
+//            ResponseEntity<ProductEntity> externalResponse = productServiceClient.createProduct(savedProduct);
+//            if (externalResponse.getStatusCode().is2xxSuccessful()) {
+//                return new ResponseEntity<>("상품 추가 성공", HttpStatus.CREATED);
+//            } else {
+//                return new ResponseEntity<>("상품 추가로직중 페인클라이언트 로직 실패", HttpStatus.INTERNAL_SERVER_ERROR);
+//            }
+            return new ResponseEntity<>("상품 추가 성공", HttpStatus.CREATED);
         } else {
-            return new ResponseEntity<>("상품을 추가 할수 없습니다.", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("상품을 추가할 수 없습니다.", HttpStatus.BAD_REQUEST);
         }
     }
+
+    @Cacheable(cacheNames = "productListCache")
     public ResponseEntity<List<ProductResponse>> getAllOrders() {
         List<ProductEntity> productEntities = productRepository.findAll();
         if (productEntities.isEmpty()) {
@@ -38,7 +52,6 @@ public class ProductService {
             return new ResponseEntity<>(productResponses, HttpStatus.OK);
         }
     }
-
     private ProductResponse convertToProductResponse(ProductEntity productEntity) {
         return new ProductResponse(productEntity.getProductId(), productEntity.getName(), productEntity.getSupplyPrice());
     }

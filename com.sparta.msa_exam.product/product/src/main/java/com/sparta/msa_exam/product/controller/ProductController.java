@@ -12,13 +12,12 @@ import java.util.List;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping("/products")
 public class ProductController {
 
     private final ProductService productService;
 
     @PostMapping("/products")
-    public ResponseEntity<?> createProduct(@RequestBody ProductEntity product) {
+    public ResponseEntity<String> createProduct(@RequestBody ProductEntity product) {
         return productService.save(product);
 
     }
