@@ -1,0 +1,27 @@
+spring:  #Prod 전용 사용시 jvm 옵션에 -Dspring.profiles.active=prod 추가해서 사용
+  application:
+    name: product-service
+  datasource:
+    url: jdbc:mysql://your_rds_endpoint:3306/msa_db?useSSL=false&serverTimezone=UTC
+    username: root
+    password: 1234
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+  main:
+    allow-bean-definition-overriding: true
+server:
+  port: 19093
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:19090/eureka/
+management:
+  zipkin:
+    tracing:
+      endpoint: "http://your_zipkin_server:9411/api/v2/spans"  # 프로덕션 Zipkin 서버 주소
+  tracing:
+    sampling:
+      probability: 1.0
